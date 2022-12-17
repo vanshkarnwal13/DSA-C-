@@ -1,22 +1,23 @@
 #include<iostream>
 using namespace std;
-class Queue
-{
+class circularqueue{
     int *data;
     int front;
     int rear;
     int size;
+    int capacity;
     public:
-    Queue(int size)
+    circularqueue(int s)
     {
-        data = new int[size];
+        data = new int[s];
         front = -1;
         rear = -1;
-        this->size = size;
+        size = 0;
+        capacity = s;
     }
     void enqueue(int x)
     {
-        if(rear == size-1)
+        if((rear+1)%capacity == front)
         {
             cout<<"Queue is full"<<endl;
             return;
@@ -24,10 +25,12 @@ class Queue
         else if(front == -1 && rear == -1)
         {
             front = rear = 0;
+            size++;
         }
         else
         {
-            rear++;
+            rear = (rear+1)%capacity;
+            size++;
         }
         data[rear] = x;
     }
@@ -44,7 +47,8 @@ class Queue
         }
         else
         {
-            front++;
+            front = (front+1)%capacity;
+            size--;
         }
     }
     int getFront()
@@ -75,38 +79,44 @@ class Queue
     }
     bool isFull()
     {
-        if(rear == size-1)
+        if((rear+1)%capacity == front)
         {
             return true;
         }
         return false;
     }
-    int getSize()
+    int getsize()
     {
         return size;
     }
 };
-int main(){
-    Queue q(5);
+int main()
+{
+    circularqueue q(5);
     q.enqueue(1);
     q.enqueue(2);
     q.enqueue(3);
     q.enqueue(4);
     q.enqueue(5);
+    q.enqueue(6);
     cout<<q.getFront()<<endl;
     cout<<q.getRear()<<endl;
     q.dequeue();
-    cout<<q.getFront()<<endl;
-    cout<<q.getRear()<<endl;
     q.dequeue();
     cout<<q.getFront()<<endl;
     cout<<q.getRear()<<endl;
-    q.dequeue();
+    cout<<q.isEmpty()<<endl;
+    cout<<q.isFull()<<endl;
+    cout<<q.getsize()<<endl;
+    q.enqueue(10);
+    q.enqueue(11);
     cout<<q.getFront()<<endl;
     cout<<q.getRear()<<endl;
-    q.dequeue();
+    q.enqueue(12);
+    q.enqueue(13);
     cout<<q.getFront()<<endl;
     cout<<q.getRear()<<endl;
-    
+
     return 0;
 }
+
