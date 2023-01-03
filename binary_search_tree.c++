@@ -1,116 +1,153 @@
 #include<iostream>
-#include<queue>
 using namespace std;
-template<typename T>
-class binarySearchTreeNode{
+class BinaryTreeNode{
 public:
     T data;
-    binarySearchTreeNode<T> *left;
-    binarySearchTreeNode<T> *right;
-    binarySearchTreeNode(T data){
+    BinaryTreeNode<T> *left;
+    BinaryTreeNode<T> *right;
+    BinaryTreeNode(T data){
         this->data = data;
         left = NULL;
         right = NULL;
     }
-    ~binarySearchTreeNode(){
+    ~BinaryTreeNode(){
         delete left;
         delete right;
     }
 };
-binarySearchTreeNode<int> *takeInput(){
-    int rootData;
-    cout << "Enter data: ";
-    cin >> rootData;
-    if(rootData == -1){
-        return NULL;
+class BST{
+    BinaryTreeNode<int> *root;
+    public:
+    BST(){
+        root = NULL;
     }
-    binarySearchTreeNode<int> *root = new binarySearchTreeNode<int>(rootData);
-    binarySearchTreeNode<int> *leftChild = takeInput();
-    binarySearchTreeNode<int> *rightChild = takeInput();
-    root->left = leftChild;
-    root->right = rightChild;
-    return root;
-}
-binarySearchTreeNode<int> *takeInputLevelWise(){
-    int rootData;
-    cout << "Enter root data: ";
-    cin >> rootData;
-    if(rootData == -1){
-        return NULL;
+    ~BST(){
+        delete root;
     }
-    binarySearchTreeNode<int> *root = new binarySearchTreeNode<int>(rootData);
-    queue<binarySearchTreeNode<int>*> pendingNodes;
-    pendingNodes.push(root);
-    while(pendingNodes.size() != 0){
-        binarySearchTreeNode<int> *front = pendingNodes.front();
-        pendingNodes.pop();
-        int leftChildData;
-        cout << "Enter left child of " << front->data << ": ";
-        cin >> leftChildData;
-        if(leftChildData != -1){
-            binarySearchTreeNode<int> *child = new binarySearchTreeNode<int>(leftChildData);
-            front->left = child;
-            pendingNodes.push(child);
+    private:
+    BinaryTreeNode<int> *insert(BinaryTreeNode<int> *node, int data){
+        if(node == NULL){
+            BinaryTreeNode<int> *newNode = new BinaryTreeNode<int>(data);
+            return newNode;
         }
-        int rightChildData;
-        cout << "Enter right child of " << front->data << ": ";
-        cin >> rightChildData;
-        if(rightChildData != -1){
-            binarySearchTreeNode<int> *child = new binarySearchTreeNode<int>(rightChildData);
-            front->right = child;
-            pendingNodes.push(child);
+        if(data < node->data){
+            node->left = insert(node->left, data);
+        }
+        else{
+            node->right = insert(node->right, data);
+        }
+        return node;
+    }
+    void printTree(BinaryTreeNode<int> *node){
+        if(node == NULL){
+            return;
+        }
+        cout << node->data << ": ";
+        if(node->left != NULL){
+            cout << "L" << node->left->data << ", ";
+        }
+        if(node->right != NULL){
+            cout << "R" << node->right->data;
+        }
+        cout << endl;
+        printTree(node->left);
+        printTree(node->right);
+    }
+    bool hasData(BinaryTreeNode<int> *node, int data){
+        if(node == NULL){
+            return false;
+        }
+        if(node->data == data){
+            return true;
+        }
+        else if(data < node->data){
+            return hasData(node->left, data);
+        }
+        else{
+            return hasData(node->right, data);
         }
     }
-    return root;
-}
-void printTree(binarySearchTreeNode<int> *root){
-    if(root == NULL){
-        return;
+    BinaryTreeNode<int> *deleteData(BinaryTreeNode<int> *node, int data){
+        if(node == NULL){
+            return NULL;
+        }
+        if(data < node->data){
+            node->left = deleteData(node->left, data);
+            return node;
+        }
+        else if(data > node->data){
+            node->right = deleteData(node->right, data);
+            return node;
+        }
+        else{
+            if(node->left == NULL && node->right == NULL){
+                delete node;
+                return NULL;
+            }
+            else if(node->left == NULL){
+                BinaryTreeNode<int> *temp = node->right;
+                node->right = NULL;
+                delete node;
+                return temp;
+            }
+            else if(node->right == NULL){
+                BinaryTreeNode<int> *temp = node->left;
+                node->left = NULL;
+                delete node;
+                return temp;
+            }
+            else{
+                BinaryTreeNode<int> *minNode = node->right;
+                while(minNode->left != NULL){
+                    minNode = minNode->left;
+                }
+                int rightMin = minNode->data;
+                node->data = rightMin;
+                node->right = deleteData(node->right, rightMin);
+                return node;
+            }
+        }
     }
-    cout << root->data << ": ";
-    if(root->left != NULL){
-        cout << "L" << root->left->data << " ";
+    public:
+    void insert(int data){
+        this->root = insert(root, data);
     }
-    if(root->right != NULL){
-        cout << "R" << root->right->data;
+    bool hasData(int data){
+        return hasData(root, data);
     }
-    cout << endl;
-    printTree(root->left);
-    printTree(root->right);
-}
+    void printTree(){
+        printTree(root);
+    }
+    void delete(int data){
+        deleteData(root, data);
+    }
 
-// check if a binary tree is BST or not
-int maximum(binarySearchTreeNode<int> *root){
-    if(root == NULL){
-        return INT_MIN;
-    }
-    return max(root->data, max(maximum(root->left), maximum(root->right)));
-}
-int minimum(binarySearchTreeNode<int> *root){
-    if(root == NULL){
-        return INT_MAX;
-    }
-    return min(root->data, min(minimum(root->left), minimum(root->right)));
-}
+};
 
-bool isBST(binarySearchTreeNode<int> *root){
-    if(root == NULL){
-        return true;
-    }
-    int leftMax = maximum(root->left);
-    int rightMin = minimum(root->right);
-    bool output = (root->data > leftMax) && (root->data <= rightMin) && isBST(root->left) && isBST(root->right);
-    return output;
-}
 int main(){
-    binarySearchTreeNode<int> *root = takeInputLevelWise();
-    printTree(root);
-    if(isBST(root)){
-        cout << "Yes, it is a BST" << endl;
+    BST *tree = new BST();
+    cout<<"1. Insert\n2. Search\n3. Delete\n4. Print\n";
+    int choice, input;
+    while(true){
+        cin >> choice;
+        switch(choice){
+            case 1:
+                cin >> input;
+                tree->insert(input);
+                break;
+            case 2:
+                cin >> input;
+                cout << (tree->hasData(input) ? "true" : "false") << endl;
+                break;
+            case 3:
+                cin >> input;
+                tree->delete(input);
+                break;
+            case 4:
+                tree->printTree();
+                break;
+            default:
+                return 0;
+        }
     }
-    else{
-        cout << "No, it is not a BST" << endl;
-    }
-
-    delete root;
 }
