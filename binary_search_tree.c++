@@ -1,11 +1,12 @@
 #include<iostream>
 using namespace std;
+template<typename T>
 class BinaryTreeNode{
 public:
-    T data;
-    BinaryTreeNode<T> *left;
-    BinaryTreeNode<T> *right;
-    BinaryTreeNode(T data){
+    int data;
+    BinaryTreeNode<int> *left;
+    BinaryTreeNode<int> *right;
+    BinaryTreeNode(int data){
         this->data = data;
         left = NULL;
         right = NULL;
@@ -118,7 +119,7 @@ class BST{
     void printTree(){
         printTree(root);
     }
-    void delete(int data){
+    void Delete(int data){
         deleteData(root, data);
     }
 
@@ -132,16 +133,19 @@ int main(){
         cin >> choice;
         switch(choice){
             case 1:
+                cout<<"Enter the data to be inserted: ";
                 cin >> input;
                 tree->insert(input);
                 break;
             case 2:
+                cout<<"Enter the data to be searched: ";
                 cin >> input;
                 cout << (tree->hasData(input) ? "true" : "false") << endl;
                 break;
             case 3:
+                cout<<"Enter the data to be deleted: ";
                 cin >> input;
-                tree->delete(input);
+                tree->Delete(input);
                 break;
             case 4:
                 tree->printTree();
